@@ -1,15 +1,9 @@
 services:
   - docker:dind
 
-cache:
-  key: ${CI_COMMIT_SHA}
-  paths:
-    - coverage/
-
 stages:
   - build
   - test
-  - report
 
 build:
   image: docker:latest
@@ -26,18 +20,11 @@ unit_tests:
   stage: test
   tags:
     - tokend
-  script:
-    - go test -v -covermode=count -coverprofile=./coverage/report ./...
-
-unit_coverage:
-  image: golang:latest
-  stage: report
   # total:                                                  (statements)    44.4%
   coverage: '/total:.+[0-9\.]+%$/'
-  dependencies:
-    - unit_tests
   script:
-    go tool cover -func=./coverage/report
+    - go test -v -covermode=count -coverprofile=./coverage.out ./...
+    - go tool cover -func=./coverage.out
 
 #integration_tests:
 #  image: docker:latest
