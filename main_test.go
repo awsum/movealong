@@ -7,5 +7,4 @@ func TestFn(t *testing.T) {
 }
 
 func TestFail(t *testing.T) {
-	t.Fatal("ohmyblobs")
 }
