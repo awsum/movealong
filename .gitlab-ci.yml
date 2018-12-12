@@ -9,6 +9,7 @@ cache:
 stages:
   - build
   - test
+  - report
 
 build:
   image: docker:latest
@@ -30,7 +31,7 @@ unit_tests:
 
 unit_coverage:
   image: golang:latest
-  stage: test
+  stage: report
   # total:                                                  (statements)    44.4%
   coverage: '/total:.+[0-9\.]+%$/'
   dependencies:
