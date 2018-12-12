@@ -16,14 +16,12 @@ build:
     - echo "done"
 
 unit_tests:
-  image: docker:latest
+  image: golang:latest
   stage: test
   tags:
     - tokend
   script:
-    - echo "running unit tests"
-    - sleep 20
-    - echo "done"
+    - go test ./...
 
 integration_tests:
   image: docker:latest
