@@ -1,0 +1,36 @@
+services:
+  - docker:dind
+
+stages:
+  - build
+  - test
+
+build:
+  image: docker:latest
+  stage: build
+  tags:
+    - tokend
+  script:
+    - echo "bulding"
+    - sleep 5
+    - echo "done"
+
+unit_tests:
+  image: docker:latest
+  stage: test
+  tags:
+    - tokend
+  script:
+    - echo "running unit tests"
+    - sleep 20
+    - echo "done"
+
+integration_tests:
+  image: docker:latest
+  stage: test
+  tags:
+    - tokend
+  script:
+    - echo "running unit tests"
+    - sleep 40
+    - echo "done"
