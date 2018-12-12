@@ -32,7 +32,7 @@ unit_coverage:
   image: golang:latest
   stage: test
   # total:                                                  (statements)    44.4%
-  coverage: "/total:.+[0-9\.]+%$/"
+  coverage: '/total:.+[0-9\.]+%$/'
   dependencies:
     - unit_tests
   script:
