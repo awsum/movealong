@@ -1,12 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-func fn(i int) error {
-	if i > 1 {
-		return fmt.Errorf("%d", i)
-	}
+func findPR() error {
 	return nil
 }
 
-func main() {}
+func main() {
+	if err := findPR(); err != nil {
+		fmt.Println(err)
+	}
+}
