@@ -35,7 +35,7 @@ unit_test:
     - github-status-updater -action update_state -context CI/coverage-report -description "Coverage report aggregation is in progress" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state pending
     - go test -v -covermode=count -coverprofile=./coverage.out ./...
     - COVERAGE_NOW=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print $3}')
-    - git checkout master
+    - git checkout -f master
     - echo $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
     - go test -v -covermode=count -coverprofile=./coverage.out ./...
     - COVERAGE_WAS=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print $3}')
