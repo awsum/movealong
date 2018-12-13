@@ -39,7 +39,8 @@ unit_test:
     - go test -v -covermode=count -coverprofile=./coverage.out ./...
     - COVERAGE_MST=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print substr($3, 1, length($3)-1)}')
     - DIFF=$(awk '{print $1-$2}' <<< "$COVERAGE_NOW $COVERAGE_MST")
-    - github-status-updater -action update_state -context CI/coverage-report -description "Coverage score is change is $DIFF" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success
+    - STATE=$([ "$COVERAGE_NOW" -gt "$COVERAGE_MST" ] && echo success || echo failure)
+    - github-status-updater -action update_state -context CI/coverage-report -description "Coverage score is change is $DIFF%" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
 
 #build:
 #  image: docker:latest
