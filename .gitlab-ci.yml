@@ -2,13 +2,20 @@ services:
   - docker:dind
 
 stages:
-  - merge_checks
-#  - build
-#  - test
+  - build
+  - checks
+
+build:
+  image: golang:latest
+  stage: build
+  tags:
+    - tokend
+  script:
+    - go build main.go
 
 check_ahead:
   image: docker:latest
-  stage: merge_checks
+  stage: checks
   tags:
     - tokend
   script:
@@ -16,14 +23,17 @@ check_ahead:
     - DIFF=$(git log --oneline $CI_MERGE_REQUEST_TARGET_BRANCH_NAME..HEAD)
     - '[ -z "$DIFF" ] && docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success || docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state failure'
 
-
-#pending_unit:
-#  image: docker:latest
-#  stage: prepare
-#  tags:
-#    - tokend
-#  script:
-#    - docker run --rm cloudposse/github-status-updater -action update_state -context CI -description "Coverage check in progress" -owner awsum -repo movealong -ref 9b9ad699e2734e335dbd0786f5ed1a52835956d9 -state pending -token $GITHUB_TOKEN
+unit_test:
+  image: golang:latest
+  stage: checks
+  tags:
+    - tokend
+  coverage: '/total:.+[0-9\.]+%$/'
+  script:
+    - go get github.com/cloudposse/github-status-updater
+    - go test -v -covermode=count -coverprofile=./coverage.out ./...
+    - COVERAGE=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print $3}')
+    - github-status-updater -action update_state -context CI/coverage-report -description "Aggregated coverage percent is $COVERAGE" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success
 
 #build:
 #  image: docker:latest
@@ -41,7 +51,6 @@ check_ahead:
 #  tags:
 #    - tokend
 #  # total:                                                  (statements)    44.4%
-#  coverage: '/total:.+[0-9\.]+%$/'
 #  script:
 #    - go test -v -covermode=count -coverprofile=./coverage.out ./...
 #    - go tool cover -func=./coverage.out
