@@ -2,29 +2,48 @@ services:
   - docker:dind
 
 stages:
-  - build
-  - test
+  - merge_checks
+#  - build
+#  - test
 
-build:
+check_ahead:
   image: docker:latest
-  stage: build
+  stage: merge_checks
   tags:
     - tokend
   script:
-    - echo "bulding"
-    - sleep 5
-    - echo "done"
+    - apk add git
+    - git log --oneline $CI_MERGE_REQUEST_TARGET_BRANCH_NAME..HEAD
+    - echo OK
 
-unit_tests:
-  image: golang:latest
-  stage: test
-  tags:
-    - tokend
-  # total:                                                  (statements)    44.4%
-  coverage: '/total:.+[0-9\.]+%$/'
-  script:
-    - go test -v -covermode=count -coverprofile=./coverage.out ./...
-    - go tool cover -func=./coverage.out
+#pending_unit:
+#  image: docker:latest
+#  stage: prepare
+#  tags:
+#    - tokend
+#  script:
+#    - docker run --rm cloudposse/github-status-updater -action update_state -context CI -description "Coverage check in progress" -owner awsum -repo movealong -ref 9b9ad699e2734e335dbd0786f5ed1a52835956d9 -state pending -token $GITHUB_TOKEN
+
+#build:
+#  image: docker:latest
+#  stage: build
+#  tags:
+#    - tokend
+#  script:
+#    - echo "bulding"
+#    - sleep 5
+#    - echo "done"
+#
+#unit_tests:
+#  image: golang:latest
+#  stage: test
+#  tags:
+#    - tokend
+#  # total:                                                  (statements)    44.4%
+#  coverage: '/total:.+[0-9\.]+%$/'
+#  script:
+#    - go test -v -covermode=count -coverprofile=./coverage.out ./...
+#    - go tool cover -func=./coverage.out
 
 #integration_tests:
 #  image: docker:latest
