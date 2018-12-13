@@ -1,6 +1,5 @@
 package foo
 
-
 func Code() {
 	a := 1
 	if a > 2 {
