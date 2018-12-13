@@ -17,8 +17,6 @@ build:
 check_ahead:
   image: docker:latest
   stage: checks
-  only:
-    - merge_requests
   tags:
     - tokend
   script:
@@ -29,8 +27,6 @@ check_ahead:
 unit_test:
   image: golang:latest
   stage: checks
-  only:
-    - merge_requests
   tags:
     - tokend
   coverage: '/total:.+[0-9\.]+%$/'
