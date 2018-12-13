@@ -34,12 +34,12 @@ unit_test:
     - go get github.com/cloudposse/github-status-updater
     - github-status-updater -action update_state -context CI/coverage-report -description "Coverage report aggregation is in progress" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state pending
     - go test -v -covermode=count -coverprofile=./coverage.out ./...
-    - COVERAGE_NOW=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print $3}')
+    - COVERAGE_NOW=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print substr($3, 1, length($3)-1)}')
     - git checkout -f master
-    - echo $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
     - go test -v -covermode=count -coverprofile=./coverage.out ./...
-    - COVERAGE_WAS=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print $3}')
-    - github-status-updater -action update_state -context CI/coverage-report -description "Coverage was $COVERAGE_WAS, now $COVERAGE_NOW" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success
+    - COVERAGE_MST=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print substr($3, 1, length($3)-1)}')
+    - DIFF=$(awk '{print $1-$2}' <<< "$COVERAGE_NOW $COVERAGE_MST")
+    - github-status-updater -action update_state -context CI/coverage-report -description "Coverage score is change is $DIFF" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success
 
 #build:
 #  image: docker:latest
