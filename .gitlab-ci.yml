@@ -13,8 +13,10 @@ check_ahead:
     - tokend
   script:
     - apk add git
-    - git log --oneline $CI_MERGE_REQUEST_TARGET_BRANCH_NAME..HEAD
-    - echo OK
+    - CMD="docker run --rm cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -token $GITHUB_TOKEN
+    - DIFF=$(git log --oneline $CI_MERGE_REQUEST_TARGET_BRANCH_NAME..HEAD)
+    - [ -z "$DIFF" ] && $CMD -state success|| $CMD -state failure
+
 
 #pending_unit:
 #  image: docker:latest
