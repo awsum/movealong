@@ -44,8 +44,7 @@ unit_tests:
     - tokend
   script:
     - go get github.com/cloudposse/github-status-updater
-    - go test ./...
-    - STATE=$([ $? -ne 0 ] && echo failure || echo success)
+    - go test ./... && STATE=success || STATE=failure
     - github-status-updater -action update_state -context CI/unit-tests -description "Unit tests" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
 
 coverage:
