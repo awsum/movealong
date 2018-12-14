@@ -21,7 +21,7 @@ check_ahead:
     - tokend
   script:
     - apk add git
-    - DIFF=$(git log --oneline master..HEAD)
+    - DIFF=$(git log --oneline HEAD..master)
     - '[ -z "$DIFF" ] && docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success || docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state failure'
 
 strict_lint:
@@ -62,33 +62,3 @@ coverage:
     - DIFF=$(awk '{print $1-$2}' <<< "$COVERAGE_NOW $COVERAGE_MST")
     - STATE=$([ "$COVERAGE_NOW" -gt "$COVERAGE_MST" ] && echo success || echo failure)
     - github-status-updater -action update_state -context CI/coverage-report -description "Coverage score change is $DIFF%" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
-
-#build:
-#  image: docker:latest
-#  stage: build
-#  tags:
-#    - tokend
-#  script:
-#    - echo "bulding"
-#    - sleep 5
-#    - echo "done"
-#
-#unit_tests:
-#  image: golang:latest
-#  stage: test
-#  tags:
-#    - tokend
-#  # total:                                                  (statements)    44.4%
-#  script:
-#    - go test -v -covermode=count -coverprofile=./coverage.out ./...
-#    - go tool cover -func=./coverage.out
-
-#integration_tests:
-#  image: docker:latest
-#  stage: test
-#  tags:
-#    - tokend
-#  script:
-#    - echo "running unit tests"
-#    - sleep 40
-#    - echo "done"
