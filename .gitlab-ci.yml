@@ -37,7 +37,18 @@ strict_lint:
     - STATE=$([ -z $LINT ] && echo success || echo failure)
     - github-status-updater -action update_state -context CI/strict-lint -description "Please check lint errors" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
 
-unit_test:
+unit_tests:
+  image: golang:latest
+  stage: checks
+  tags:
+    - tokend
+  script:
+    - go get github.com/cloudposse/github-status-updater
+    - go test ./...
+    - STATE=$([ $? -ne 0 ] && echo failure || echo success)
+    - github-status-updater -action update_state -context CI/unit-tests -description "Unit tests" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
+
+coverage:
   image: golang:latest
   stage: checks
   tags:
