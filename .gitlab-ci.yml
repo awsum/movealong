@@ -8,21 +8,16 @@ stages:
   - build
 #  - checks
 #  - release
-#
+
 build:
-  image: golang:latest
+  image: ubuntu:latest
   stage: build
   except:
     - master
   tags:
     - tokend
-  before_script:
-    - go get github.com/cloudposse/github-status-updater
-  after_script:
-    - echo $STATE
   script:
-    - which github-status-updater
-    - STATE = 1
+    - .ci/build.sh
 
 #
 #check_ahead:
