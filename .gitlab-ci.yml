@@ -1,36 +1,78 @@
 services:
   - docker:dind
 
+#variables:
+#  BUILD_IMAGE: movealong
+#
 stages:
   - build
-  - test
+#  - checks
+#  - release
 
 build:
-  image: docker:latest
+  image: ubuntu:latest
   stage: build
+  except:
+    - master
   tags:
     - tokend
   script:
-    - echo "bulding"
-    - sleep 5
-    - echo "done"
+    - .ci/build.sh
 
-unit_tests:
-  image: docker:latest
-  stage: test
-  tags:
-    - tokend
-  script:
-    - echo "running unit tests"
-    - sleep 20
-    - echo "done"
-
-integration_tests:
-  image: docker:latest
-  stage: test
-  tags:
-    - tokend
-  script:
-    - echo "running unit tests"
-    - sleep 40
-    - echo "done"
+#
+#check_ahead:
+#  image: docker:latest
+#  stage: checks
+#  tags:
+#    - tokend
+#  script:
+#    - apk add git
+#    - DIFF=$(git log --oneline HEAD..master)
+#    - '[ -z "$DIFF" ] && docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state success || docker run --rm -e GITHUB_TOKEN=$GITHUB_TOKEN cloudposse/github-status-updater -action update_state -context CI/target-merged -description "Target branch should be merged" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state failure'
+#
+#strict_lint:
+#  image: golang:latest
+#  stage: checks
+#  tags:
+#    - tokend
+#  script:
+#    - go get github.com/cloudposse/github-status-updater
+#    - wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.12.3
+#    - ./bin/golangci-lint run --disable-all -E govet -E goimports ./...
+#    - ./bin/golangci-lint run --disable-all -E govet -E goimports ./... && STATE=success || STATE=failure
+#    - github-status-updater -action update_state -context CI/strict-lint -description "Please check lint errors" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
+#
+#unit_tests:
+#  image: golang:latest
+#  stage: checks
+#  tags:
+#    - tokend
+#  script:
+#    - go get github.com/cloudposse/github-status-updater
+#    - go test ./... && STATE=success || STATE=failure
+#    - github-status-updater -action update_state -context CI/unit-tests -description "Unit tests" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
+#
+#coverage:
+#  image: golang:latest
+#  stage: checks
+#  tags:
+#    - tokend
+#  script:
+#    - go get github.com/cloudposse/github-status-updater
+#    - github-status-updater -action update_state -context CI/coverage-report -description "Coverage report aggregation is in progress" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state pending
+#    - go test -v -covermode=count -coverprofile=./coverage.out ./...
+#    - COVERAGE_NOW=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print substr($3, 1, length($3)-1)}')
+#    - git checkout -f master
+#    - go test -v -covermode=count -coverprofile=./coverage.out ./...
+#    - COVERAGE_MST=$(go tool cover -func=./coverage.out | tail -n 1 | awk '{print substr($3, 1, length($3)-1)}')
+#    - DIFF=$(awk '{print $1-$2}' <<< "$COVERAGE_NOW $COVERAGE_MST")
+#    - STATE=$([ "$COVERAGE_NOW" -gt "$COVERAGE_MST" ] && echo success || echo failure)
+#    - github-status-updater -action update_state -context CI/coverage-report -description "Coverage score change is $DIFF%" -owner awsum -repo movealong -ref $CI_COMMIT_SHA -state $STATE
+#
+#push:
+#  image: docker:latest
+#  stage: release
+#  tags:
+#    - tokend
+#  script:
+#    - go build main.go
